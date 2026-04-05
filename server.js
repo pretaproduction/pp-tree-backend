@@ -3,16 +3,15 @@ require("dotenv").config();
 const express = require("express");
 const Razorpay = require("razorpay");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const admin = require("firebase-admin");
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// 🔥 FIREBASE
-const serviceAccount = require("./serviceAccountKey.json");
+// 🔥 FIREBASE (FROM ENV)
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || "{}");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -20,7 +19,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// 🔑 RAZORPAY (SECURE - FROM .env)
+// 🔑 RAZORPAY
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -30,7 +29,7 @@ const razorpay = new Razorpay({
 app.post("/create-order", async (req, res) => {
   try {
     const order = await razorpay.orders.create({
-      amount: 19900, // ₹199
+      amount: 19900,
       currency: "INR",
     });
 
@@ -41,7 +40,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// 🔥 WEBHOOK (AUTO ACCESS)
+// 🔥 WEBHOOK
 app.post("/webhook", async (req, res) => {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -77,7 +76,7 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-// 🌐 PORT SUPPORT (IMPORTANT)
+// 🌐 PORT FIX
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
