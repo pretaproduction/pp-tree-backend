@@ -54,18 +54,18 @@ app.post("/webhook", async (req, res) => {
   if (expected === signature) {
     try {
       const payment = req.body.payload.payment.entity;
-      const uid = payment.notes?.uid;
 
-      if (uid) {
-        await db.collection("users").doc(uid).set(
-          {
-            hasAccess: true,
-            paid: true,
-          },
-          { merge: true }
-        );
-      }
+      const email = payment.email;
 
+if (email) {
+  await db.collection("users").doc(email).set(
+    {
+      hasAccess: true,
+      paid: true,
+    },
+    { merge: true }
+  );
+}
       res.json({ status: "ok" });
     } catch (err) {
       console.error(err);
@@ -74,6 +74,19 @@ app.post("/webhook", async (req, res) => {
   } else {
     res.status(400).send("Invalid signature");
   }
+});
+
+
+app.get("/check-access", async (req, res) => {
+  const uid = req.query.uid;
+
+  const doc = await db.collection("users").doc(uid).get();
+
+  if (!doc.exists) {
+    return res.json({ hasAccess: false });
+  }
+
+  res.json({ hasAccess: doc.data().hasAccess || false });
 });
 
 // 🌐 PORT FIX
