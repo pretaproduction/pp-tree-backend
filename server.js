@@ -55,6 +55,11 @@ app.post("/webhook", async (req, res) => {
     try {
       const payment = req.body.payload.payment.entity;
 
+
+     console.log("FULL PAYMENT:", payment);   // 🔥 ADD THIS
+     console.log("NOTES:", payment.notes);    // 🔥 ADD THI
+
+
 const uid = payment.notes?.uid;
 
 if (uid) {
