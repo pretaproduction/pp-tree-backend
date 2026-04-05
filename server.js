@@ -55,10 +55,10 @@ app.post("/webhook", async (req, res) => {
     try {
       const payment = req.body.payload.payment.entity;
 
-      const email = payment.email;
+const uid = payment.notes?.uid;
 
-if (email) {
-  await db.collection("users").doc(email).set(
+if (uid) {
+  await db.collection("users").doc(uid).set(
     {
       hasAccess: true,
       paid: true,
